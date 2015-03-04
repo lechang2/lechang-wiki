@@ -1,0 +1,79 @@
+	
+.navigate {
+	text-align: right;
+	text-decoration: none;
+	font-family: arial;
+	font-size: 15px;
+	border-bottom: 20px;
+}
+
+a {
+	text-decoration: none;
+	color:black;
+}
+
+a:hover{
+	text-decoration: underline;
+	color:black;
+}
+
+
+tr{
+	height: 30px;
+}
+
+.control{
+	float: right;
+}
+
+.user_info{
+	float:right;
+	margin-left: 10px;
+	margin-right:20px;
+}
+
+table{
+	position: relative;
+	left:30px;
+	top:30px;
+	text-align: left;
+	font-size: 18px
+}
+
+.time{
+	color: gray;
+	margin-left:20px;
+	font-family: arial;
+		}
+
+
+.content{
+	font-size: 100%;
+	position:relative;
+	top:50px;
+	left:50px;
+	right: 30px;
+		}
+
+.history_row_gray{
+	background-color: #C0C0C0;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+.button{
+	position: relative;
+	font-size:120%;
+	top:10px;
+	left: 10px;
+	right: 10px;
+}
+
+.textarea{
+	position: relative;
+	font-size: 14px;
+	top: 10px;
+	left:10px;
+	bottom: 10px
+}
+

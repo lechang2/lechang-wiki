@@ -1,0 +1,12 @@
+from google.appengine.ext import db
+import re
+
+class Page(db.Model):
+	content = db.TextProperty(required = True)
+	pagename = db.StringProperty(required = True)
+	created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
+
+    def __init__():
+    	pagename = r'?/'
+    	welcome = self(content = '<h2>Welcome to the wiki</h2>', pagename = pagename)

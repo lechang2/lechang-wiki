@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="/static/main.css" />
+		<title>Le Chang Wiki</title>
+	</head>
+
+
+	<div class='navigate'>
+		<div class = 'control'>
+			{%if username != '' %}	
+				<a href={{editpage}}>edit</a> |
+			{%endif%}
+				<a href={{historypage}}>history<a>
+		</div>
+
+		<div class = 'user_info'>
+			{%if username%}
+				<div>{{username}} (<a href='/logout'>Logout</a>)</div>
+			{%else%}
+				<div><a href='/login'>Login</a> | <a href='/signup'>Signup</a></div> 
+			{%endif%}
+		</div>
+	</div>
+
+	<div class='content'>
+    	{{content | safe}}
+	</div>
+</html>
+
+ 

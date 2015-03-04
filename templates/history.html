@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="/static/main.css" />
+		<title>Le Chang Wiki</title>
+	</head>
+
+
+	<div class='navigate'>
+		  <div class = 'control'>
+		      {%if username != '' %}	
+		          <a href={{editpage}}>edit</a> |
+		      {%endif%}
+		          <a href={{viewpage}}>view<a>
+		  </div>
+
+		  <div class = 'user_info'>
+		      {%if username%}
+			     <div>{{username}} <a href='/logout'>(Logout)</a></div>
+		      {%else%}
+			     <div><a href='/login'>Login</a> | <a href='/signup'>Signup</a> </div>
+		      {%endif%}
+		  </div>
+	</div>
+
+	<table>
+    {%for i in range(0,length,1)%}
+    	{%if i%2 == 0 %}
+    		<tr class= 'history_row'>
+    	{%else%}
+    		<tr class= 'history_row_gray'>
+    	{%endif%}
+    		  <td>
+    			 <div class="time">{{pages[i].created.strftime("%c")}}</div>
+    		  </td>
+    		  <td> 
+    			 <div>{{pages[i].content}}</div>
+    		  </td>
+    		  {%if username != ''%}
+    		  <td>
+    			 <a href='{{editpage}}?v={{i}}'>edit</a>
+    		  </td>
+    		  {%endif%}
+    		  <td>
+    			 <a href='{{viewpage}}?v={{i}}'>view</a>
+    		  </td>
+    	   </tr>
+    {%endfor%}
+	</table>
+</html>
+
+ 

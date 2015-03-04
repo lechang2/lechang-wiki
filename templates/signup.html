@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Wiki Sign up</title>
+  </head>
+
+  <body>
+   
+    <h2>Please sign up here</h2>
+    <form method="post">
+        <table>
+            <tr>
+                <td class='label'>Username</td>
+                <td>
+                <input type='text', name='username', value={{username}}>
+                </td>
+                <td style='color:red'>{{username_error}}</td>
+            </tr>
+
+            <tr>
+                <td>Password</td>
+                <td>
+                <input type='password', name='password', value=''>
+                </td>
+                <td style='color:red'>{{password_error}}</td>
+            </tr>
+
+            <tr>
+                <td>Verify Password</td>
+                <td>
+                <input type='password', name='verify', value=''>
+                </td>
+                <td style='color:red'>{{verify_error}}</td>
+            </tr>
+
+            <tr>
+                <td>Email (optional)</td>
+                <td>
+                <input type='text', name='email', value='{{email}}'>
+                </td>
+                <td style='color:red'>{{email_error}}</td>
+            </tr>
+        </table>
+        <input type='hidden', name = 'next_url', value='{{next_url}}'>
+        <input type='submit'>
+    </form>
+
+  </body>
+
+</html>
+
+
+
