@@ -46,26 +46,27 @@ def valid_email(email):
 
 '''renders the page content from the database'''
 class WikiPage(handler.Handler):
-    def get(self, pagename):
-    	v = self.request.get('v')
-    	user_id = self.read_secure_cookie('user_id')  #check if the user is logged in
-    	if user_id:
-    		username = database.Users.get_by_id(int(user_id)).username
-    	else:
-    		username = ''
 
-    	page, time_last = cache.cache_get(pagename)  #get the latest page content from cache
-    	editpage = '/_edit'+pagename
-    	historypage = '/_history'+pagename
-    	if page == None:      #if page is none, means both database and cache cannot find it, direct to editpage
-    		self.redirect(editpage)
-    	else:
-    		if v and v.isdigit():   #if version request exist, find the corresponding page from database.
-    			pages = db.GqlQuery("select * from Page WHERE pagename=:1 ORDER by created DESC", pagename)
-    			content = list(pages)[int(v)].content    
-    		else:
-    			content = page.content   #if no version request, get the page form latest cache
-    		self.render('wikipage.html', content = content, editpage = editpage, username = username, historypage = historypage)
+	def get(self, pagename):
+		v = self.request.get('v')
+		user_id = self.read_secure_cookie('user_id')	#check if the user is logged in
+		if user_id:
+			username = database.Users.get_by_id(int(user_id)).username
+		else:
+			username = ''
+
+		page, time_last = cache.cache_get(pagename)	#get the latest page content from cache
+		editpage = '/_edit'+pagename
+		historypage = '/_history'+pagename
+		if page == None:
+			self.redirect(editpage)
+		else:
+			if v and v.isdigit():	#if there is version request, use it, if not, get the latest page
+				pages = db.GqlQuery("select * from Page WHERE pagename=:1 ORDER by created DESC", pagename)
+				content = list(pages)[int(v)].content
+			else:
+				content = page.content
+			self.render('wikipage.html', content = content, editpage = editpage, username = username, historypage = historypage)
 
 
 
@@ -80,23 +81,23 @@ class Login(handler.Handler):
 
 	'''renders the login form, validate information, goes back to where user was'''
 	def post(self):
-		next_url = str(self.request.get('next_url'))  #get the referer page from login get()
-		if not next_url or next_url.startswith('/login'):  #avoid dead cycle from signup and login
+		next_url = str(self.request.get('next_url'))	#get the referer page from login get()
+		if not next_url or ('/signup' in next_url):	#avoid dead cycle from signup and login
 			next_url = '/'
 		username = self.request.get('username')
 		password = self.request.get('password')
 		error = False
-		u = database.Users.all().filter('username =', username).get()  #gets the information of the user form database
+		u = database.Users.all().filter('username =', username).get()	#gets the information of the user form database
 		if not u:   
 			error = True
 		else: 
-			if not self.valid_pw(username, password, u.password):   #validate the secure password stored in the database with user type in
+			if not self.valid_pw(username, password, u.password):	#validate the secure password stored in the database with user type in
 				error = True
 		
 		if error == True:
 			self.render('login-form.html' , error = 'Invalid login.')
 		else:
-			self.set_secure_cookie('user_id', str(u.key().id()))  #set the secure cookie so user is logged in
+			self.set_secure_cookie('user_id', str(u.key().id()))	#set the secure cookie so user is logged in
 			self.redirect(next_url)
 			
 
@@ -124,7 +125,7 @@ class Signup(handler.Handler):
 	def post(self):
 		next_url = str(self.request.get('next_url'))
 		logging.error('url is ' +next_url)
-		if not next_url or ('/login' in next_url):  #avoids the dead cycle of going back and forth to login and signup
+		if not next_url or ('/login' in next_url):	#avoids the dead cycle of going back and forth to login and signup
 			next_url = '/'
 		username = self.request.get('username')
 		password = self.request.get('password')
@@ -136,14 +137,14 @@ class Signup(handler.Handler):
 		email_error = ''
 		error = False
 		
-		if not valid_username(username):  #use valide_username() to check if it follow right format
+		if not valid_username(username):	#use valide_username() to check if it follow right format
 			username_error = 'That\'s not a valid username.'
 			error = True
-		elif database.Users.all().filter('username =', username).get():  #check database if username exits
+		elif database.Users.all().filter('username =', username).get():	#check database if username exits
 			error = True
 			username_error='The username already exists.'
 		
-		if not valid_password(password):   #checks the password follow right format
+		if not valid_password(password):	#checks the password follow right format
 			password_error = 'That wasn\'t a valid password.'
 			error = True
 		else:
@@ -152,7 +153,7 @@ class Signup(handler.Handler):
 				error = True
 		
 		if email:
-			if not valid_email(email):  #checks email follow the email format
+			if not valid_email(email):	#checks email follow the email format
 				email_error = 'That\'s not a valid email.'
 				error = True
 
@@ -161,9 +162,9 @@ class Signup(handler.Handler):
 					'email': email, 'email_error' : email_error}
 
 		if error is True:
-			self.render("signup.html", **all_message)   #if this is error, the error message are shown
+			self.render("signup.html", **all_message)	#if this is error, the error message are shown
 		else:
-			pw_h = self.hash_pw(username, password)    #The password stored in Users object is the secure password
+			pw_h = self.hash_pw(username, password)	#The password stored in Users object is the secure password
 			u = database.Users(username = username , password = pw_h, email= email)
 			u.put()
 			self.set_secure_cookie('user_id', str(u.key().id()))   #set cookie so the user is logged in
@@ -176,18 +177,22 @@ class EditPage(handler.Handler):
 
 	'''Find the content of the page with the pagename and render the form with the content in it'''
 	def get(self, pagename):
-		cookie = self.read_secure_cookie('user_id')  
+		if pagename == '/login' or pagename == '/logout' or pagename == '/signup':
+			self.render('prohibited.html')
+			return
+
+		cookie = self.read_secure_cookie('user_id')
 		v = self.request.get('v')
-		if not cookie:    #if no user information, there is error, show error message, do nothing. This should not showup in usual case
-			self.response.out.write('You are not logged in, please go back to login.')
+		if not cookie:   #if not logged in, redirect page shows up
+			self.render('redirect.html')
 			return
 		username = database.Users.get_by_id(int(cookie)).username
 
-		if v and v.isdigit():   #if there is version request, the version is found by check the database
-			pages  = db.GqlQuery("select * from Page WHERE pagename=:1 ORDER by created DESC", pagename) #find all Page with pagename
-			content = list(pages)[int(v)].content   #the version is the index of the pages, ordered by latest to oldest
+		if v and v.isdigit():	#if there is version request, the version is found by check the database
+			pages  = db.GqlQuery("select * from Page WHERE pagename=:1 ORDER by created DESC", pagename)	#find all Page with pagename
+			content = list(pages)[int(v)].content
 		else:
-			page, time_last = cache.cache_get(pagename)   #if no version request simply read from cache of the latest page
+			page, time_last = cache.cache_get(pagename)	#if no version request simply read from cache of the latest page
 			if page == None:
 				content = ''
 			else:
@@ -213,7 +218,7 @@ class History(handler.Handler):
 		else:
 			username = ''
 		pages  = db.GqlQuery("select * from Page WHERE pagename=:1 ORDER by created DESC", pagename)
-		pages = list(pages)      #list all the pages with the same pagename, thus the history
+		pages = list(pages)	#list all the pages with the same pagename, thus the history
 		editpage = '/_edit'+pagename
 		viewpage = pagename
 		self.render('history.html', pages = pages, editpage = editpage, viewpage = viewpage, username = username, length = len(pages))
