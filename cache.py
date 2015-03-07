@@ -25,8 +25,6 @@ def cache_get(pagename):
    It also update the cache of the page with pagename to the latest edit'''    
 def cache_edit(pagename, content):
     time_last = time.time()
-    if not content:
-        content = ' '
     page = database.Page(pagename = pagename, content = content)        
     page.put()
     memcache.set(pagename, (page, content))

@@ -2,7 +2,7 @@ from google.appengine.ext import db
 import re
 
 class Page(db.Model):
-	content = db.TextProperty(required = True)
+	content = db.TextProperty(required = False)
 	pagename = db.StringProperty(required = True)
 	created = db.DateTimeProperty(auto_now_add = True)
 
